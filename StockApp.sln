@@ -15,6 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockApp.Domain.Test", "Sto
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockApp.API", "StockApp.API\StockApp.API.csproj", "{5564572A-CAA8-4E91-9786-53AA90D9BB57}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp.API.Testes", "StockApp.API.Testes\StockApp.API.Testes.csproj", "{8B382854-DF60-4053-BF05-108C61F147AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5564572A-CAA8-4E91-9786-53AA90D9BB57} = {5564572A-CAA8-4E91-9786-53AA90D9BB57}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +50,10 @@ Global
 		{5564572A-CAA8-4E91-9786-53AA90D9BB57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5564572A-CAA8-4E91-9786-53AA90D9BB57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5564572A-CAA8-4E91-9786-53AA90D9BB57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B382854-DF60-4053-BF05-108C61F147AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B382854-DF60-4053-BF05-108C61F147AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B382854-DF60-4053-BF05-108C61F147AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B382854-DF60-4053-BF05-108C61F147AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
