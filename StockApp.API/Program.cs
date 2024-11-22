@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using StockApp.Infra.IoC;
+using System.Text;
 
 internal class Program
 {
@@ -6,29 +9,71 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
-        builder.Services.AddInfrastructureAPI(builder.Configuration);
+        
+        builder.Services.AddInfrastructureAPI(builder.Configuration); 
 
-        builder.Services.AddControllers();
+      
+        if (string.IsNullOrEmpty(builder.Configuration["Jwt:Issuer"]) ||
+            string.IsNullOrEmpty(builder.Configuration["Jwt:Audience"]) ||
+            string.IsNullOrEmpty(builder.Configuration["Jwt:SecretKey"]))
+        {
+            throw new InvalidOperationException("As configurações de JWT não estão corretamente definidas.");
+        }
 
-        builder.Services.AddEndpointsApiExplorer();
+        
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = true;  
+                options.SaveToken = true; 
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true, 
+                    ValidateAudience = true,  
+                    ValidateLifetime = true,  
+                    ValidateIssuerSigningKey = true,  
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],  
+                    ValidAudience = builder.Configuration["Jwt:Audience"], 
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))  
+                };
+            });
+
+        builder.Services.AddControllers();  
+
+        builder.Services.AddEndpointsApiExplorer();  
         builder.Services.AddSwaggerGen();
+
+       
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader());
+        });
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
+        
         if (app.Environment.IsDevelopment())
         {
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwagger();  
+            app.UseSwaggerUI(); 
         }
 
-        app.UseHttpsRedirection();
+        app.UseHttpsRedirection();  
 
+      
+        app.UseAuthentication();
+
+        
         app.UseAuthorization();
 
-        app.MapControllers();
+       
+        app.UseCors("AllowAll");
 
-        app.Run();
+        app.MapControllers(); 
+
+        app.Run();  
     }
 }
