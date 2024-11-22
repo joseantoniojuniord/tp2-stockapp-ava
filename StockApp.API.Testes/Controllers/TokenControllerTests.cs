@@ -4,6 +4,8 @@ using Moq;
 using StockApp.API.Controllers;
 using Xunit;
 using System.Threading.Tasks;
+using StockApp.Application.DTOs;
+using StockApp.Application.Interfaces;
 
 
 namespace StockApp.API.Testes.Controllers
