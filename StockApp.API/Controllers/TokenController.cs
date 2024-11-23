@@ -1,13 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using StockApp.Application.DTOs;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 namespace StockApp.API.Controllers
 {
@@ -36,8 +32,7 @@ namespace StockApp.API.Controllers
             {
                 _logger.LogInformation("Tentativa de login para o usuário: {Username}", userLoginDto.Username);
 
-                // Aqui você deve verificar as credenciais do usuário
-                // Este é apenas um exemplo, você deve implementar sua própria lógica de verificação
+
                 if (!ValidateUserCredentials(userLoginDto.Username, userLoginDto.Password))
                 {
                     _logger.LogWarning("Falha na autenticação para o usuário: {Username}", userLoginDto.Username);
@@ -58,8 +53,7 @@ namespace StockApp.API.Controllers
 
         private bool ValidateUserCredentials(string username, string password)
         {
-            // Implemente sua lógica de validação de credenciais aqui
-            // Este é apenas um exemplo, NÃO use isso em produção
+
             return username == "admin" && password == "password";
         }
 
