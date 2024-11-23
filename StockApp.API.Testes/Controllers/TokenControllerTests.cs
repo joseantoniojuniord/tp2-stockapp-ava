@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
+using Newtonsoft.Json.Linq;
 using StockApp.API.Controllers;
-using Xunit;
-using System.Threading.Tasks;
 using StockApp.Application.DTOs;
-using StockApp.Application.Interfaces;
-
 
 namespace StockApp.API.Testes.Controllers
 {
@@ -15,34 +13,60 @@ namespace StockApp.API.Testes.Controllers
         [Fact]
         public async Task Login_ValidCredentials_ReturnsToken()
         {
-            var authServiceMock = new Mock<IAuthService>();
-            var tokenController = new TokenController(authServiceMock.Object);
+         
+            var configurationMock = new Mock<IConfiguration>();
+            configurationMock.Setup(config => config["Jwt:SecretKey"]).Returns("super-secret-key");
+            configurationMock.Setup(config => config["Jwt:Issuer"]).Returns("TestIssuer");
+            configurationMock.Setup(config => config["Jwt:Audience"]).Returns("TestAudience");
 
-            var expectedToken = "token";
-            var expectedExpiration = DateTime.UtcNow.AddMinutes(60);
 
-            authServiceMock.Setup(service => service.AuthenticateAsync(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new TokenResponseDto
-            {
-                Token = expectedToken,
-                Expiration = expectedExpiration
-            });
+            var tokenController = new TokenController(Mock.Of<ILogger<TokenController>>(), configurationMock.Object);
 
             var userLoginDto = new UserLoginDto
             {
-                Username = "testuser",
-                Password = "password"
+                Username = "admin",
+                Password = "password" 
             };
 
             var result = await tokenController.Login(userLoginDto) as OkObjectResult;
 
+
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
 
-            var tokenResponse = result.Value as TokenResponseDto;
-            Assert.NotNull(tokenResponse);
-            Assert.Equal(expectedToken, tokenResponse.Token);
-            Assert.Equal(expectedExpiration, tokenResponse.Expiration);
+ 
+            var response = JObject.FromObject(result.Value);
+            Assert.NotNull(response["Token"]);
+            Assert.NotEmpty(response["Token"].ToString());
+        }
+
+        [Fact]
+        public async Task Login_InvalidCredentials_ReturnsUnauthorized()
+        {
+            
+            var configurationMock = new Mock<IConfiguration>();
+            configurationMock.Setup(config => config["Jwt:SecretKey"]).Returns("super-secret-key");
+            configurationMock.Setup(config => config["Jwt:Issuer"]).Returns("TestIssuer");
+            configurationMock.Setup(config => config["Jwt:Audience"]).Returns("TestAudience");
+
+          
+            var tokenController = new TokenController(Mock.Of<ILogger<TokenController>>(), configurationMock.Object);
+
+            var userLoginDto = new UserLoginDto
+            {
+                Username = "invaliduser",
+                Password = "wrongpassword"
+            };
+
+            var result = await tokenController.Login(userLoginDto) as UnauthorizedObjectResult;
+
+            
+            Assert.NotNull(result);
+            Assert.Equal(401, result.StatusCode);
+
+            
+            var response = JObject.FromObject(result.Value);
+            Assert.Equal("Credenciais inválidas.", response["Message"].ToString());
         }
     }
 }
